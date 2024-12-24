@@ -1,0 +1,92 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel del Profesor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .navbar {
+            background: #4e73df;
+        }
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Gestión de Calificaciones</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" th:href="@{/profesores/crear-materia}">Crear Materias</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/profesores/inscripcion}">Inscribir Estudiantes</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/profesores/calificaciones}">Asignar Calificaciones</a></li>
+                <li class="nav-item"><a class="nav-link text-danger" th:href="@{/logout}">Cerrar Sesión</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container my-5">
+    <h2 class="text-center mb-5 text-primary">Selecciona una Materia</h2>
+
+    <!-- Fila de tarjetas -->
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        <!-- Iteramos sobre las materias -->
+        <div class="col" th:each="materia : ${materias}">
+            <a th:href="@{/profesores/calificaciones/{idMateria}(idMateria=${materia.idMateria})}" class="text-decoration-none">
+            <div class="card h-100 shadow-lg rounded-3 border-light">
+                <!-- Imagen de la tarjeta, puedes cambiarla o usar una imagen dinámica -->
+                <img src="https://media.geeksforgeeks.org/wp-content/cdn-uploads/20190911190208/How-to-Become-A-Successful-Java-Developer.png" class="card-img-top rounded-top" alt="Materia" style="object-fit: cover; height: 200px;">
+                <div class="card-body">
+                    <h5 class="card-title text-center text-dark" th:text="${materia.nombre}">Materia Nombre</h5>
+                    <p class="card-text text-muted" th:text="'Profesor: ' + ${materia.profesor.nombre}+' '+ ${materia.profesor.getApellido()}">Profesor Nombre</p>
+                    <div class="d-flex justify-content-center">
+                        <a th:href="@{/profesores/calificaciones/{idMateria}(idMateria=${materia.idMateria})}" class="btn btn-primary w-50 rounded-pill shadow-sm">Seleccionar</a>
+                    </div>
+                </div>
+            </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Efecto hover para las tarjetas */
+    .card:hover {
+        transform: translateY(-10px);
+        transition: transform 0.3s ease-in-out;
+    }
+
+    /* Ajuste del fondo de la tarjeta */
+    .card-body {
+        background-color: #f9f9f9;
+    }
+
+    /* Sombra más suave para los botones */
+    .btn-primary {
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
+
+
+
+
+

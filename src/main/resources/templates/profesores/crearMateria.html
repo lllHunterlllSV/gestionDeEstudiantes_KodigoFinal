@@ -1,0 +1,239 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel del Profesor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .navbar {
+            background: #4e73df;
+        }
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Gestión de Calificaciones</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" th:href="@{/profesores/crear-materia}">Crear Materias</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/profesores/inscripcion}">Inscribir Estudiantes</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/profesores/calificaciones}">Asignar Calificaciones</a></li>
+                <li class="nav-item"><a class="nav-link text-danger" th:href="@{/logout}">Cerrar Sesión</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container my-4">
+    <h2 class="text-center text-primary">Panel del Profesor</h2>
+
+    <div class="container my-5">
+        <h2 class="text-center mb-4">Gestión de Materias</h2>
+
+        <!-- Tabla de Inscripciones -->
+
+        <!-- Texto y Botón para agregar materia -->
+        <div class="d-flex justify-content-right mb-4">
+            <span class="p-2">Agregar Materia</span>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#agregarMateriaModal">Agregar</button>
+        </div>
+
+        <table class="table table-striped table-bordered table-hover text-center">
+            <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Profesor</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+
+            <tr th:each="materia : ${materias}">
+                <td th:text="${materia.idMateria}"></td>
+                <td th:text="${materia.nombre}"></td>
+                <td th:text="${materia.profesor.nombre}+' '+ ${materia.profesor.getApellido()}"></td>
+                <td>
+                    <!-- Botón de edición, pasando el idMateria como un atributo de datos -->
+                    <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editarModal"
+                            th:data-id="${materia.idMateria}" th:data-nombre="${materia.nombre}"
+                            th:data-profesor="${materia.profesor.getIdProfesor()}" onclick="editarInscripcion(this)">
+                        Editar
+                    </button>
+                </td>
+                <td>
+                    <!-- Botón de eliminación -->
+                    <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#eliminarModal"
+                            th:data-id="${materia.idMateria}" onclick="eliminarInscripcion(this)">
+                        Eliminar
+                    </button>
+                </td>
+            </tr>
+
+
+
+
+
+            </tbody>
+        </table>
+
+
+        <!-- Modal para agregar materia -->
+        <div class="modal fade" id="agregarMateriaModal" tabindex="-1" aria-labelledby="agregarMateriaModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="agregarMateriaModalLabel">Agregar Nueva Materia</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Formulario para agregar materia -->
+                        <form method="post" th:action="@{materias/crear}">
+                            <div class="mb-3">
+                                <label for="materiaNombre" class="form-label">Nombre de la Materia</label>
+                                <input type="text" name="nombre" class="form-control" id="materiaNombre" placeholder="Ingresa el nombre de la materia">
+                            </div>
+                            <div class="mb-3">
+                                <label for="materiaProfesor" class="form-label">Profesor</label>
+                                <select name="materiaProfesor" id="materiaProfesor" class="form-select">
+                                    <option th:each="profesor : ${profesores}" th:text="${profesor.getNombre()}+' '+${profesor.getApellido()}" th:value="${profesor.getIdProfesor()}"></option>
+                                </select>
+                            </div>
+
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            <button type="submit" class="btn btn-primary">Guardar Materia</button>
+                        </form>
+                    </div>
+
+
+
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para Editar -->
+        <div class="modal fade" id="editarModal" tabindex="-1" role="dialog" aria-labelledby="editarModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editarModalLabel">Editar Inscripción</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Formulario de Edición -->
+                        <form id="editarForm" method="post" >
+                            <div class="form-group">
+                                <label for="nombre">Nombre</label>
+                                <input type="text" name="nombre" class="form-control" id="nombre" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="idProfesor">ID Profesor</label>
+                                <input type="number" name="idProfesor" class="form-control" id="idProfesor" required>
+                            </div>
+                            <input type="hidden"  id="idMateria" required>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                <button type="submit" class="btn btn-primary" >Guardar cambios</button>
+
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para Eliminar -->
+        <div class="modal fade" id="eliminarModal" tabindex="-1" role="dialog" aria-labelledby="eliminarModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="eliminarModalLabel">Eliminar Inscripción</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="eliminarForm" method="post" >
+                        ¿Estás seguro de que deseas eliminar esta inscripción?
+                            <input type="hidden" id="idMateriaEliminar">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-danger" >Eliminar</button>
+
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts de Bootstrap (asegurate de incluirlos en tu proyecto) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Función para abrir el modal de edición y cargar los datos
+        function editarInscripcion(button) {
+            // Obtener los datos del botón usando data-*
+            var idMateria = button.getAttribute('data-id');
+            var nombre = button.getAttribute('data-nombre');
+            var profesor = button.getAttribute('data-profesor');
+
+            document.getElementById('editarForm').action = 'materias/editar/' + idMateria;
+
+
+            // Llenar los campos del modal con estos valores
+            console.log("Editando inscripción con ID:", idMateria, nombre, profesor);
+
+            // Asumimos que tienes un formulario en el modal con campos con estos IDs
+            document.getElementById('nombre').value = nombre;
+            document.getElementById('idProfesor').value = profesor;
+            document.getElementById('idMateria').value = idMateria; // Si tienes un campo hidden para el ID de la materia
+        }
+
+        // Función para abrir el modal de eliminación y cargar el ID
+        function eliminarInscripcion(button) {
+            // Obtener los datos del botón usando data-*
+            var idMateria = button.getAttribute('data-id');
+
+
+            document.getElementById('eliminarForm').action = 'materias/eliminar/' + idMateria;
+
+
+            // Llenar los campos del modal con estos valores
+            console.log("Eliminando inscripción con ID:", idMateria, nombre, profesor);
+
+            // Asumimos que tienes un formulario en el modal con campos con estos IDs
+
+            document.getElementById('idMateria').value = idMateria; // Si tienes un campo hidden para el ID de la materia
+        }
+
+    </script>
+
+
+</div>
+</body>
+</html>
+
+
+
+
+
